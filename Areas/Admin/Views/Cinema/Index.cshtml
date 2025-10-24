@@ -1,0 +1,52 @@
+﻿﻿@using movie.Areas.Admin.Models
+@model IEnumerable<Cinema>
+
+
+<h1>All Cinemas</h1>
+<a class="btn btn-primary mb-5" href="/Admin/Cinema/Create">Create</a>
+
+<div id="tableExample2" data-list='{"valueNames":["name","email","age"],"page":5,"pagination":true}'>
+    <div class="table-responsive scrollbar">
+        <table class="table table-bordered table-striped fs--1 mb-0">
+            <thead class="bg-200 text-900">
+                <tr>
+                    <th class="sort" data-sort="email">Id</th>
+                    <th class="sort" data-sort="name">Name</th>
+                    <th class="sort" data-sort="age">img</th>
+                    <th class="sort" data-sort="age">Edit</th>
+                    <th class="sort" data-sort="age">Delete</th>
+                </tr>
+            </thead>
+            <tbody class="list">
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="id">@item.Id</td>
+                        <td class="name">@item.Name</td>
+                        <td class="img">
+                            @if (!string.IsNullOrEmpty(item.Img))
+                            {
+                                <img src="~/uploads/@item.Img" alt="Cinema Image" style="max-width: 50px; height: auto;" class="rounded" />
+                            }
+                            else
+                            {
+                                <span>No Image</span>
+                            }
+                        </td>
+                        <td class="edit">
+                            <a href="/admin/cinema/edit/@item.Id" class="btn btn-danger" style="padding: 1px 20px;"><span>Edit</span></a>
+                        </td>
+                        <td class="delete">
+                            <a href="/admin/cinema/delete/@item.Id" class="btn btn-primary" style="padding: 1px 20px;"><span>Delete</span></a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="d-flex justify-content-center mt-3">
+        <button class="btn btn-sm btn-falcon-default me-1" type="button" title="Previous" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+        <ul class="pagination mb-0"></ul>
+        <button class="btn btn-sm btn-falcon-default ms-1" type="button" title="Next" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+    </div>
+</div>
