@@ -1,0 +1,272 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>movie</title>
+</head>
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/bb.styles.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/startupVibeAnimation.css">
+<link rel="stylesheet" href="~/css/index.css">
+<link rel="stylesheet" href="~/css/media.css">
+<link rel="stylesheet" href="~/css/all.min.css">
+<!-- <link rel="stylesheet" href="css/sweetalert2.min.css"> -->
+
+<body>
+    <!-- ********************************* -->
+    <!-- nab-bar -->
+    <!-- ********************************* -->
+    <nav class="navbar navbar-expand-lg p-3 position-fixed w-100" data-anim="fade-down" data-anim-duration="1s"
+         data-anim-timing="linear">
+        <div class="container d-flex justify-content-between align-items-center gap-2">
+            <div class="d-flex justify-content-between align-items-center gap-3">
+                <div id="open" class="bar-icon">
+                    <span class="one"></span>
+                    <span class="two"></span>
+                    <span class="three"></span>
+                </div>
+                <a class="navbar-brand" href="index.html">Movie</a>
+
+                <div id="collapse" class="navbar-ul position-absolute">
+                    <div class="header-nav d-flex justify-content-between align-items-center">
+                        <h3 class="" href="index.html">Khomra</h3>
+                        <i id="close" class="fa-solid fa-xmark"></i>
+                    </div>
+                    <ul class="">
+                        <li><a href="#">Home</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">movie</a></li>
+                        <li><a href="#">Categotries</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="d-flex justify-content-center align-items-center gap-3">
+                <div class="search position-relative">
+                    <i id="Search-icon" class="fa-solid fa-magnifying-glass position-absolute"></i>
+                    <input class="form-control" type="text" name="" id="">
+                </div>
+                <div class="icon cart d-flex justify-content-center align-items-center gap-3">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span class="d-none d-md-block d-lg-block">cart</span>
+                </div>
+                <div class="icon user d-flex justify-content-center align-items-center gap-3">
+                    <i class="fa-solid fa-user"></i>
+                    <span class="d-none d-md-block d-lg-block">account</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ********************************* -->
+    <!-- carousel -->
+    <!-- ********************************* -->
+    <div id="promoCarousel" class="carousel slide" data-bs-ride="carousel" data-anim="zoom-in" data-anim-duration="1s">
+
+        <!-- Dots indicators -->
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#promoCarousel" data-bs-slide-to="0" class="dot active" aria-current="true"
+                    aria-label="Slide 1"></button>
+            <button class="dot" type="button" data-bs-target="#promoCarousel" data-bs-slide-to="1"
+                    aria-label="Slide 2"></button>
+            <button class="dot" type="button" data-bs-target="#promoCarousel" data-bs-slide-to="2"
+                    aria-label="Slide 3"></button>
+            <button class="dot" type="button" data-bs-target="#promoCarousel" data-bs-slide-to="3"
+                    aria-label="Slide 4"></button>
+            <button class="dot" type="button" data-bs-target="#promoCarousel" data-bs-slide-to="4"
+                    aria-label="Slide 5"></button>
+            <button class="dot" type="button" data-bs-target="#promoCarousel" data-bs-slide-to="5"
+                    aria-label="Slide 6"></button>
+            <button class="dot" type="button" data-bs-target="#promoCarousel" data-bs-slide-to="6"
+                    aria-label="Slide 7"></button>
+        </div>
+
+        <!-- Slides -->
+        <div class="carousel-inner">
+            <!-- Slide 1 -->
+            <div class="carousel-item active">
+                <div class="container">
+                    <div class="banner d-flex align-items-center justify-content-between">
+                        <div class="banner-text ">
+                            <p class="mb-1">Experience softness, purity, and timeless quality</p>
+                            <h1>Shadow Horizon</h1>
+                        </div>
+                        <img class="product-banner" src="~/assets/img/movie.jpg" alt="Cotton Product">
+                    </div>
+                </div>
+                
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="carousel-item">
+                <div class="container">
+                    <div class="banner d-flex align-items-center justify-content-between">
+                        <div class="banner-text">
+                            <p class="mb-1">A brave hero embarks on a journey to save the world from darkness</p>
+                            <h1>Shadow Horizon</h1>
+                        </div>
+                        <img src="~/assets/img/movie.jpg" alt="Cotton Fabric">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="carousel-item">
+                <div class="container">
+                    <div class="banner d-flex align-items-center justify-content-between">
+                        <div class="banner-text">
+                            <p class="mb-1">Experience softness, purity, and timeless quality</p>
+                            <h1>Shadow Horizon</h1>
+                            
+                        </div>
+                        <img src="~/assets/img/movie.jpg" alt="Cotton Fabric">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4 -->
+            <div class="carousel-item">
+                <div class="container">
+                    <div class="banner d-flex align-items-center justify-content-between">
+                        <div class="banner-text">
+                            <p class="mb-1">Experience softness, purity, and timeless quality</p>
+                            <h1>Shadow Horizon</h1>
+                        </div>
+                        <img src="~/assets/img/movie.jpg" alt="Cotton Fabric">
+                    </div>
+                </div>
+            </div>
+            <!-- Slide 5 -->
+
+            <div class="carousel-item">
+                <div class="container">
+                    <div class="banner d-flex align-items-center justify-content-between">
+                        <div class="banner-text">
+                            <p class="mb-1">Experience softness, purity, and timeless quality</p>
+                            <h1>Shadow Horizon</h1>
+                        </div>
+                        <img src="~/assets/img/movie.jpg" alt="Cotton Fabric">
+                    </div>
+                </div>
+            </div>
+            <!-- Slide 6 -->
+
+            <div class="carousel-item">
+                <div class="container">
+                    <div class="banner d-flex align-items-center justify-content-between">
+                        <div class="banner-text">
+                            <p class="mb-1">Experience softness, purity, and timeless quality</p>
+                            <h1>Shadow Horizon</h1>
+                        </div>
+                        <img src="~/assets/img/movie.jpg" alt="Cotton Fabric">
+                    </div>
+                </div>
+            </div>
+            <!-- Slide 7 -->
+
+            <div class="carousel-item">
+                <div class="container">
+                    <div class="banner d-flex align-items-center justify-content-between">
+                        <div class="banner-text">
+                            <p class="mb-1">Experience softness, purity, and timeless quality</p>
+                            <h1>Shadow Horizon</h1>
+                        </div>
+                        <img src="~/assets/img/movie.jpg" alt="Cotton Fabric">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Arrows -->
+        <button class="carousel-control-prev d-none d-lg-flex" type="button" data-bs-target="#promoCarousel"
+                data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true">
+                <i class="fa-solid fa-angle-left"></i>
+            </span>
+        </button>
+
+        <button class="carousel-control-next d-none d-lg-flex" type="button" data-bs-target="#promoCarousel"
+                data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true">
+                <i class="fa-solid fa-angle-right"></i>
+            </span>
+        </button>
+    </div>
+
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <!-- ********************************* -->
+    <!-- footer -->
+    <!-- ********************************* -->
+    <section class="footer d-flex mt-5 p-5 position-relative overflow-hidden">
+        <div class="container">
+            <div class="row gap-5">
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="info">
+                        <h2 class="mb-5">Khomra</h2>
+                        <div class="contact">
+                            <div class="d-flex justify-content-start align-items-start gap-3">
+                                <i class="fa-brands fa-whatsapp"></i>
+                                <div class="text">
+                                    <p>WhatsApp</p>
+                                    <p>+1 202-918-2132</p>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-start align-items-start gap-3">
+                                <i class="fa-solid fa-phone"></i>
+                                <div class="text">
+                                    <p>Call Us</p>
+                                    <p>+1 202-918-2132</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="category">
+                        <p>category</p>
+                        <ul>
+                            <li><a href="#">drama</a></li>
+                            <li><a href="#">action</a></li>
+                            <li><a href="#">comedy</a></li>
+                            <li><a href="#">drama</a></li>
+                            <li><a href="#">action</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="pages">
+                        <p>pages</p>
+                        <ul>
+                            <li><a href="#">Home</a></li>
+                            <li><a href="#">About</a></li>
+                            <li><a href="#">Contact</a></li>
+                            <li><a href="#">Products</a></li>
+                            <li><a href="#">Categotries</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <img style="    position: absolute;
+    top: -60px;
+    right: -85px;
+" src="assets/lyaer.svg" alt="">
+    </section>
+
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/index.js"></script>
+    <script src="~/js/startupVibeAnimation.js"></script>
+</body>
+
+</html>

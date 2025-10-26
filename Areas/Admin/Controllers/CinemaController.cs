@@ -1,92 +1,92 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using movie.Areas.Admin.Data;
 using movie.Areas.Admin.Models;
-using System.Collections.Generic;
+using ECommerce.Repositories; // ✅ مكان الريبو الجينريك
 
 namespace movie.Areas.Admin.Controllers
 {
     [Area("Admin")]
     public class CinemaController : Controller
     {
-        private ApplicationDbContext _context = new();
+        private readonly Repository<Cinema> _repository;
+
+        public CinemaController(ApplicationDbContext context)
+        {
+            _repository = new Repository<Cinema>(context);
+        }
 
         [HttpGet]
-        public IActionResult Index()
+        public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
-            var cinema = _context.cinemas.AsQueryable();
-            return View(cinema.AsEnumerable());
+            var cinemas = await _repository.GetAsync(tracked: false, cancellationToken: cancellationToken);
+            return View(cinemas);
         }
+
         [HttpGet]
         public IActionResult Create()
         {
             return View();
         }
+
         [HttpPost]
-        public IActionResult Create(Cinema cinema, IFormFile img)
+        public async Task<IActionResult> Create(Cinema cinema, IFormFile? img, CancellationToken cancellationToken)
         {
-            //_context.cinemas.Add(cinema);
-            //_context.SaveChanges();
-            //return RedirectToAction("Index", "Cinema");
             if (img is not null && img.Length > 0)
             {
-                var filename = Guid.NewGuid().ToString() + Path.GetExtension(img.FileName);
-                var filepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\uploads", filename);
+                var filename = Guid.NewGuid() + Path.GetExtension(img.FileName);
+                var filepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads", filename);
 
-                using (var stream = System.IO.File.Create(filepath))
-                {
-                    img.CopyTo(stream);
-                }
-
+                using var stream = System.IO.File.Create(filepath);
+                await img.CopyToAsync(stream);
                 cinema.Img = filename;
-
             }
-            _context.cinemas.Add(cinema);
-            _context.SaveChanges();
 
-            return RedirectToAction("Index", "Cinema");
+            await _repository.AddAsync(cinema, cancellationToken);
+            await _repository.CommitAsync(cancellationToken);
 
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id, CancellationToken cancellationToken)
         {
-            var cinema = _context.cinemas.FirstOrDefault(c => c.Id == id);
+            var cinema = await _repository.GetOneAsync(c => c.Id == id, tracked: true, cancellationToken: cancellationToken);
+            if (cinema == null)
+                return NotFound();
 
             return View(cinema);
         }
-        [HttpPost]
-        public IActionResult Edit(Cinema cinema, IFormFile img)
-        {
-            //_context.cinemas.Update(cinema);
-            //_context.SaveChanges();
-            //return RedirectToAction("Index", "Cinema");
 
+        [HttpPost]
+        public async Task<IActionResult> Edit(Cinema cinema, IFormFile? img, CancellationToken cancellationToken)
+        {
             if (img is not null && img.Length > 0)
             {
-                var filename = Guid.NewGuid().ToString() + Path.GetExtension(img.FileName);
-                var filepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\uploads", filename);
+                var filename = Guid.NewGuid() + Path.GetExtension(img.FileName);
+                var filepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads", filename);
 
-                using (var stream = System.IO.File.Create(filepath))
-                {
-                    img.CopyTo(stream);
-                }
-
+                using var stream = System.IO.File.Create(filepath);
+                await img.CopyToAsync(stream);
                 cinema.Img = filename;
-
             }
-            _context.cinemas.Update(cinema);
-            _context.SaveChanges();
 
-            return RedirectToAction("Index", "Cinema");
+            _repository.Update(cinema);
+            await _repository.CommitAsync(cancellationToken);
+
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         {
-            var cinema = _context.cinemas.FirstOrDefault(c => c.Id == id);
-            _context.cinemas.Remove(cinema);
-            _context.SaveChanges();
-            return RedirectToAction("Index", "Cinema");
+            var cinema = await _repository.GetOneAsync(c => c.Id == id, tracked: true, cancellationToken: cancellationToken);
+            if (cinema == null)
+                return NotFound();
+
+            _repository.Delete(cinema);
+            await _repository.CommitAsync(cancellationToken);
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

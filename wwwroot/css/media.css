@@ -1,0 +1,13 @@
+@media (max-width: 768px) {
+
+  /* nav */
+  nav .search input {
+    width: 12rem;
+  }
+
+  /* carousel */
+  .banner {
+    flex-direction: column;
+    text-align: center;
+  }
+}

@@ -1,176 +1,226 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using movie.Areas.Admin.Data;
 using movie.Areas.Admin.Models;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using movie.ViewModel;
+using ECommerce.Repositories;
 
 namespace movie.Areas.Admin.Controllers
 {
     [Area("Admin")]
     public class MovieController : Controller
     {
-        private ApplicationDbContext _context = new();
-        private IWebHostEnvironment _env;
+        private readonly Repository<Movie> _movieRepo;
+        private readonly Repository<MovieSubImages> _subImgRepo;
+        private readonly Repository<Category> _categoryRepo;
+        private readonly Repository<Cinema> _cinemaRepo;
+        private readonly IWebHostEnvironment _env;
 
         public MovieController(ApplicationDbContext context, IWebHostEnvironment env)
         {
-            _context = context;
+            _movieRepo = new Repository<Movie>(context);
+            _subImgRepo = new Repository<MovieSubImages>(context);
+            _categoryRepo = new Repository<Category>(context);
+            _cinemaRepo = new Repository<Cinema>(context);
             _env = env;
         }
 
         [HttpGet]
-        public IActionResult Index()
+        public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
-            var movies = _context.movies
-                .Include(m => m.category)
-                .Include(m => m.cinema)
-                .ToList();
+            var movies = await _movieRepo
+                .GetAsync(
+                    tracked: false,
+                    include: q => q
+                        .Include(m => m.category)
+                        .Include(m => m.cinema),
+                    cancellationToken: cancellationToken
+                );
+
             return View(movies);
         }
+
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create(CancellationToken cancellationToken)
         {
-            ViewBag.Categories = _context.categories.ToList();
-            ViewBag.Cinemas = _context.cinemas.ToList();
-            return View(new Movie());
+            var categories = await _categoryRepo.GetAsync(tracked: false, cancellationToken: cancellationToken);
+            var cinemas = await _cinemaRepo.GetAsync(tracked: false, cancellationToken: cancellationToken);
+
+            return View(new movieVM
+            {
+                categories = categories,
+                cinemas = cinemas
+            });
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Movie movie, IFormFile MainImgFile, List<IFormFile> SubImgFiles)
+        public async Task<IActionResult> Create(Movie movie, IFormFile MainImg, List<IFormFile> SubImages, CancellationToken cancellationToken)
         {
-
-            var uploadPath = Path.Combine(_env.WebRootPath, "uploads", "movies");
-            if (!Directory.Exists(uploadPath))
-                Directory.CreateDirectory(uploadPath);
-
-            //  Save main image
-            if (MainImgFile != null && MainImgFile.Length > 0)
+            // حفظ الصورة الرئيسية
+            if (MainImg is not null && MainImg.Length > 0)
             {
-                var fileName = Guid.NewGuid() + Path.GetExtension(MainImgFile.FileName);
+                var fileName = Guid.NewGuid() + Path.GetExtension(MainImg.FileName);
+                var uploadPath = Path.Combine(_env.WebRootPath, "uploads");
+
+                if (!Directory.Exists(uploadPath))
+                    Directory.CreateDirectory(uploadPath);
+
                 var filePath = Path.Combine(uploadPath, fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                using (var stream = System.IO.File.Create(filePath))
                 {
-                    await MainImgFile.CopyToAsync(stream);
+                    await MainImg.CopyToAsync(stream);
                 }
 
-                movie.MainImg = "/uploads/movies/" + fileName;
+                movie.MainImg = fileName;
             }
 
-            //  Save sub images
-            var subImages = new List<string>();
-            if (SubImgFiles != null && SubImgFiles.Count > 0)
+            await _movieRepo.AddAsync(movie, cancellationToken);
+            await _movieRepo.CommitAsync(cancellationToken);
+
+            // حفظ الصور الفرعية
+            if (SubImages is not null && SubImages.Count > 0)
             {
-                foreach (var file in SubImgFiles)
+                var subFolder = Path.Combine(_env.WebRootPath, "uploads", "movies");
+                if (!Directory.Exists(subFolder))
+                    Directory.CreateDirectory(subFolder);
+
+                foreach (var img in SubImages)
                 {
-                    if (file.Length > 0)
+                    var subFileName = Guid.NewGuid() + Path.GetExtension(img.FileName);
+                    var subFilePath = Path.Combine(subFolder, subFileName);
+
+                    using (var stream = System.IO.File.Create(subFilePath))
                     {
-                        var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
-                        var filePath = Path.Combine(uploadPath, fileName);
-
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await file.CopyToAsync(stream);
-                        }
-
-                        subImages.Add("/uploads/movies/" + fileName);
+                        await img.CopyToAsync(stream);
                     }
-                }
-            }
 
-            movie.SubImages = subImages;
-            movie.DateTime = DateTime.Now;
-            Console.WriteLine($"CategoryId: {movie.CategoryId}");
-            Console.WriteLine($"CinemaId: {movie.CinemaId}");
-            _context.movies.Add(movie);
-            await _context.SaveChangesAsync();
+                    await _subImgRepo.AddAsync(new MovieSubImages
+                    {
+                        Img = subFileName,
+                        MovieId = movie.Id
+                    }, cancellationToken);
+                }
+
+                await _subImgRepo.CommitAsync(cancellationToken);
+            }
 
             return RedirectToAction(nameof(Index));
         }
 
-
         [HttpGet]
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id, CancellationToken cancellationToken)
         {
-            var movie = _context.movies.FirstOrDefault(x => x.Id == id);
-            if (movie == null) return NotFound();
+            var movie = await _movieRepo.GetOneAsync(m => m.Id == id, tracked: true, cancellationToken: cancellationToken);
+            if (movie == null)
+                return NotFound();
 
-            ViewBag.Categories = _context.categories.ToList();
-            ViewBag.Cinemas = _context.cinemas.ToList();
+            var categories = await _categoryRepo.GetAsync(tracked: false, cancellationToken: cancellationToken);
+            var cinemas = await _cinemaRepo.GetAsync(tracked: false, cancellationToken: cancellationToken);
 
-            return View(movie);
+            return View(new movieVM
+            {
+                categories = categories,
+                cinemas = cinemas,
+                movie = movie
+            });
         }
+
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Movie movie, IFormFile? MainImgFile, List<IFormFile>? SubImgFiles)
+        public async Task<IActionResult> Edit(Movie movie, IFormFile MainImg, List<IFormFile> SubImages, CancellationToken cancellationToken)
         {
-            var existing = _context.movies.FirstOrDefault(x => x.Id == movie.Id);
-            if (existing == null) return NotFound();
-
-            existing.Name = movie.Name;
-            existing.Des = movie.Des;
-            existing.Price = movie.Price;
-            existing.Status = movie.Status;
-            existing.CategoryId = movie.CategoryId;
-            existing.CinemaId = movie.CinemaId;
-
-            string folderPath = Path.Combine(_env.WebRootPath, "uploads", "movies");
-            if (!Directory.Exists(folderPath))
-                Directory.CreateDirectory(folderPath);
-
-            // Replace main image if uploaded
-            if (MainImgFile != null)
+            // تحديث الصورة الرئيسية
+            if (MainImg is not null && MainImg.Length > 0)
             {
-                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(MainImgFile.FileName);
-                string path = Path.Combine(folderPath, fileName);
-                using (var stream = new FileStream(path, FileMode.Create))
+                var fileName = Guid.NewGuid() + Path.GetExtension(MainImg.FileName);
+                var uploadPath = Path.Combine(_env.WebRootPath, "uploads");
+
+                if (!Directory.Exists(uploadPath))
+                    Directory.CreateDirectory(uploadPath);
+
+                var filePath = Path.Combine(uploadPath, fileName);
+                using (var stream = System.IO.File.Create(filePath))
                 {
-                    await MainImgFile.CopyToAsync(stream);
+                    await MainImg.CopyToAsync(stream);
                 }
-                existing.MainImg = "/uploads/movies/" + fileName;
+
+                movie.MainImg = fileName;
             }
 
-            // Add new sub images if uploaded (preserve existing ones)
-            if (SubImgFiles != null && SubImgFiles.Count > 0)
+            // تحديث الصور الفرعية
+            if (SubImages is not null && SubImages.Count > 0)
             {
-                var newSubImages = new List<string>();
-                foreach (var sub in SubImgFiles)
+                var oldImages = await _subImgRepo.GetAsync(s => s.MovieId == movie.Id, tracked: true, cancellationToken: cancellationToken);
+
+                // حذف القديمة من المجلد
+                foreach (var img in oldImages)
                 {
-                    if (sub.Length > 0)
+                    var oldPath = Path.Combine(_env.WebRootPath, "uploads", "movies", img.Img);
+                    if (System.IO.File.Exists(oldPath))
+                        System.IO.File.Delete(oldPath);
+                }
+
+                _subImgRepo.DeleteRange(oldImages);
+                await _subImgRepo.CommitAsync(cancellationToken);
+
+                var subFolder = Path.Combine(_env.WebRootPath, "uploads", "movies");
+                if (!Directory.Exists(subFolder))
+                    Directory.CreateDirectory(subFolder);
+
+                foreach (var img in SubImages)
+                {
+                    var newFileName = Guid.NewGuid() + Path.GetExtension(img.FileName);
+                    var newFilePath = Path.Combine(subFolder, newFileName);
+
+                    using (var stream = System.IO.File.Create(newFilePath))
                     {
-                        string fileName = Guid.NewGuid().ToString() + Path.GetExtension(sub.FileName);
-                        string path = Path.Combine(folderPath, fileName);
-                        using (var stream = new FileStream(path, FileMode.Create))
-                        {
-                            await sub.CopyToAsync(stream);
-                        }
-                        newSubImages.Add("/uploads/movies/" + fileName);
+                        await img.CopyToAsync(stream);
                     }
+
+                    await _subImgRepo.AddAsync(new MovieSubImages
+                    {
+                        Img = newFileName,
+                        MovieId = movie.Id
+                    }, cancellationToken);
                 }
 
-                // Preserve existing sub-images and add new ones
-                if (existing.SubImages != null)
-                {
-                    existing.SubImages.AddRange(newSubImages);
-                }
-                else
-                {
-                    existing.SubImages = newSubImages;
-                }
+                await _subImgRepo.CommitAsync(cancellationToken);
             }
 
-            _context.SaveChanges();
+            _movieRepo.Update(movie);
+            await _movieRepo.CommitAsync(cancellationToken);
+
             return RedirectToAction(nameof(Index));
         }
+
         [HttpGet]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         {
-            Console.WriteLine($"id is {id}");
-            var movie = _context.movies.FirstOrDefault(x => x.Id == id);
-            _context.movies.Remove(movie);
-            _context.SaveChanges();
-            return RedirectToAction("Index", "Movie", new { area = "Admin" });
+            var movie = await _movieRepo.GetOneAsync(m => m.Id == id, tracked: true, cancellationToken: cancellationToken);
+            if (movie == null)
+                return NotFound();
+
+            // حذف الصورة الرئيسية
+            var mainPath = Path.Combine(_env.WebRootPath, "uploads", movie.MainImg ?? "");
+            if (System.IO.File.Exists(mainPath))
+                System.IO.File.Delete(mainPath);
+
+            // حذف الصور الفرعية
+            var subImgs = await _subImgRepo.GetAsync(s => s.MovieId == id, tracked: true, cancellationToken: cancellationToken);
+            foreach (var img in subImgs)
+            {
+                var imgPath = Path.Combine(_env.WebRootPath, "uploads", "movies", img.Img);
+                if (System.IO.File.Exists(imgPath))
+                    System.IO.File.Delete(imgPath);
+            }
+            _subImgRepo.DeleteRange(subImgs);
+            await _subImgRepo.CommitAsync(cancellationToken);
+
+            _movieRepo.Delete(movie);
+            await _movieRepo.CommitAsync(cancellationToken);
+
+            TempData["success-notification"] = "Movie deleted successfully.";
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

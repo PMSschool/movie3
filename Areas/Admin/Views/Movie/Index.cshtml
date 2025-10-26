@@ -1,24 +1,24 @@
-@using movie.Areas.Admin.Models
+﻿@using movie.Areas.Admin.Models
 @model IEnumerable<Movie>
 
-<h2>Movies List</h2>
-<a href="/Admin/Movie/Create" class="btn btn-primary mb-5">Add New Movie</a>
+<h1>All Movie</h1>
+<a class="btn btn-primary mb-5" href="/admin/movie/create">Create</a>
 
-<div id="tableExample2" data-list='{"valueNames":["name","email","age"],"page":5,"pagination":true}'>
+<div id="tableExample2" data-list='{"valueNames":["id","name","description"],"page":5,"pagination":true}'>
     <div class="table-responsive scrollbar">
         <table class="table table-bordered table-striped fs--1 mb-0">
             <thead class="bg-200 text-900">
                 <tr>
-                    <th class="sort" data-sort="email">Id</th>
+                    <th class="sort" data-sort="id">Id</th>
                     <th class="sort" data-sort="name">Name</th>
-                    <th class="sort" data-sort="Main-Image">Main Image</th>
-                    <th class="sort" data-sort="Category">Category</th>
-                    <th class="sort" data-sort="Cinema">Cinema</th>
+                    <th class="sort" data-sort="description">Description</th>
                     <th class="sort" data-sort="Price">Price</th>
                     <th class="sort" data-sort="Status">Status</th>
-                    <th class="sort" data-sort="Date">Date</th>
-                    <th class="sort" data-sort="Actions">Edit</th>
-                    <th class="sort" data-sort="Actions">Delete</th>
+                    <th class="sort" data-sort="image">image</th>
+                    <th class="sort" data-sort="Category">Category</th>
+                    <th class="sort" data-sort="Cinema">Cinema</th>
+                    <th class="sort" data-sort="edit">Edit</th>
+                    <th class="sort" data-sort="delete">Delete</th>
                 </tr>
             </thead>
             <tbody class="list">
@@ -27,40 +27,51 @@
                     <tr>
                         <td class="id">@item.Id</td>
                         <td class="name">@item.Name</td>
-                        <td class="img">
+                        <td class="description">@item.Des</td>
+                        <td class="Price">@item.Price.ToString("C")</td>
+                        @if (item.Status)
+                        {
+                            <td><span class="badge text-bg-success">Active</span></td>
+                        }
+                        else
+                        {
+                            <td><span class="badge text-bg-danger">InActive</span></td>
+                        }
+                        <td>
                             @if (!string.IsNullOrEmpty(item.MainImg))
                             {
-                                @* <img src="~/uploads/@item.MainImg" alt="Cinema Image" style="max-width: 100px; height: auto;" /> *@
-                                <img src="@item.MainImg" alt="Movie Image" style="max-width: 50px; height: auto;" class="rounded" />
+                                <img src="~/uploads/@item.MainImg" alt="Cinema Image" style="max-width: 50px; height: auto;" class="rounded" />
                             }
                             else
                             {
                                 <span>No Image</span>
                             }
                         </td>
-                        <td class="id">@item.category.Name</td>
-                        <td class="name">@item.cinema.Name</td>
-                        <td>@item.Price.ToString("C")</td>
-                        <td>
-                            <span class="badge @(item.Status ? "bg-success" : "bg-danger")">
-                                @(item.Status ? "Active" : "Inactive")
-                            </span>
-                        </td>
-                        <td>@item.DateTime.ToShortDateString()</td>
+                        <td class="name">@item.category.Name</td>
+                        <td class="description">@item.cinema.Name</td>
                         <td class="edit">
-                            <a href="/admin/movie/edit/@item.Id" class="btn btn-danger" style="padding: 1px 20px;"><span>Edit</span></a>
+                            <a href="/admin/movie/edit/@item.Id"
+                               class="btn btn-primary"
+                               style="padding: 1px 20px;">
+                                <span>Edit</span>
+                            </a>
                         </td>
                         <td class="delete">
-                            <a href="/admin/movie/delete/@item.Id" class="btn btn-primary" style="padding: 1px 20px;"><span>Delete</span></a>
+                            <a href="/admin/movie/delete/@item.Id"
+                               class="btn btn-danger"
+                               style="padding: 1px 20px;">
+                                <span>Delete</span>
+                            </a>
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
     </div>
+
     <div class="d-flex justify-content-center mt-3">
         <button class="btn btn-sm btn-falcon-default me-1" type="button" title="Previous" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
         <ul class="pagination mb-0"></ul>
-        <button class="btn btn-sm btn-falcon-default ms-1" type="button" title="Next" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+        <button class="btn btn-sm btn-falcon-default ms-1" type="button" title="Next" data-list-pagination="next"><span class="fas fa-chevron-right"> </span></button>
     </div>
 </div>

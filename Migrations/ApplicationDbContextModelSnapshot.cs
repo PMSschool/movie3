@@ -17,7 +17,7 @@ namespace movie.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.9")
+                .HasAnnotation("ProductVersion", "9.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -119,9 +119,6 @@ namespace movie.Migrations
                     b.Property<bool>("Status")
                         .HasColumnType("bit");
 
-                    b.PrimitiveCollection<string>("SubImages")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ActorId");
@@ -146,6 +143,19 @@ namespace movie.Migrations
                     b.HasIndex("ActorId");
 
                     b.ToTable("movieActors");
+                });
+
+            modelBuilder.Entity("movie.Areas.Admin.Models.MovieSubImages", b =>
+                {
+                    b.Property<int>("MovieId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Img")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("MovieId", "Img");
+
+                    b.ToTable("movieSubImages");
                 });
 
             modelBuilder.Entity("movie.Areas.Admin.Models.Movie", b =>
@@ -190,6 +200,15 @@ namespace movie.Migrations
                     b.Navigation("Movie");
                 });
 
+            modelBuilder.Entity("movie.Areas.Admin.Models.MovieSubImages", b =>
+                {
+                    b.HasOne("movie.Areas.Admin.Models.Movie", null)
+                        .WithMany("movieSubImages")
+                        .HasForeignKey("MovieId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("movie.Areas.Admin.Models.Actor", b =>
                 {
                     b.Navigation("movies");
@@ -203,6 +222,11 @@ namespace movie.Migrations
             modelBuilder.Entity("movie.Areas.Admin.Models.Cinema", b =>
                 {
                     b.Navigation("movies");
+                });
+
+            modelBuilder.Entity("movie.Areas.Admin.Models.Movie", b =>
+                {
+                    b.Navigation("movieSubImages");
                 });
 #pragma warning restore 612, 618
         }
